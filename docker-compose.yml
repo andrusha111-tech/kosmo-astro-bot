@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  kosmo-astro-bot:
+    build: .
+    container_name: kosmo_astro_bot
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - ADMIN_IDS=${ADMIN_IDS}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    # Уберите volumes для production (Render использует ephemeral storage)
+    # volumes:
+    #   - ./data:/app/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Health check для Render
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

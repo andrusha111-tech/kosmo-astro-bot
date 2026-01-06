@@ -1,0 +1,23 @@
+# .gitignore
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv
+.env
+.idea/
+.vscode/
+
+# Project specific
+data/
+*.log
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
