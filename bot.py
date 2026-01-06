@@ -421,9 +421,48 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
+# ========== HEALTH CHECK ДЛЯ RENDER ==========
+import os
+from flask import Flask
+import threading
+import time
+
+def run_flask_server():
+    """Запускаем Flask сервер для health check"""
+    app = Flask(__name__)
+    
+    @app.route('/')
+    def home():
+        return "Kosmo Astro Bot is running! 🚀"
+    
+    @app.route('/health')
+    def health():
+        return "OK", 200
+    
+    # Получаем порт из переменной окружения Render
+    port = int(os.environ.get('PORT', 10000))
+    print(f"🚀 Starting Flask server on port {port}")
+    
+    # Отключаем логи Flask в консоль
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    
+    # Запускаем Flask
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+
 # ========== ОСНОВНАЯ ФУНКЦИЯ ==========
 def main():
     """Запуск бота"""
+    print("🤖 Starting Kosmo Astro Bot...")
+    
+    # Запускаем Flask в отдельном потоке (только если не локальная разработка)
+    if os.environ.get('RENDER') or os.environ.get('PORT'):
+        flask_thread = threading.Thread(target=run_flask_server, daemon=True)
+        flask_thread.start()
+        print("⏳ Waiting for Flask to start...")
+        time.sleep(3)
+    
     logger.info(f"Запуск бота {BOT_NAME}...")
     
     # Создаем приложение
@@ -462,13 +501,13 @@ def main():
     
     # Запускаем бота
     logger.info(f"Бот {BOT_NAME} запущен и ожидает сообщений...")
-    print(f"Бот {BOT_NAME} запущен и ожидает сообщений...")
+    print(f"✅ Бот {BOT_NAME} запущен и ожидает сообщений...")
     
     try:
         application.run_polling(allowed_updates=Update.ALL_TYPES)
     except KeyboardInterrupt:
         logger.info("Бот остановлен пользователем")
-        print("\nБот остановлен. До свидания!")
+        print("\n🛑 Бот остановлен. До свидания!")
 
 if __name__ == "__main__":
     main()

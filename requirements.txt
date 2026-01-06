@@ -2,3 +2,4 @@ python-telegram-bot==20.7
 python-dotenv==1.0.0
 httpx[http2]>=0.24.0a
 aiohttp>=3.9.0
+flask==2.3.0
